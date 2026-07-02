@@ -73,7 +73,7 @@ jobs:
           "
 
       - name: Upload receptor artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: receptor-pdb
           path: data/output/01_receptor/ctla4_final.pdb
@@ -126,7 +126,7 @@ jobs:
           "
 
       - name: Upload peptide artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: peptide-pdb
           path: data/output/02_peptide/
@@ -146,12 +146,12 @@ jobs:
           python-version: '3.9'
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: receptor-pdb
           path: data/output/01_receptor/
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: peptide-pdb
           path: data/output/02_peptide/
@@ -188,7 +188,7 @@ jobs:
           "
 
       - name: Upload restraints artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: restraints
           path: data/output/03_restraints/
@@ -211,7 +211,7 @@ jobs:
         run: pip install numpy matplotlib
 
       - name: Download receptor
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: receptor-pdb
           path: data/output/01_receptor/
