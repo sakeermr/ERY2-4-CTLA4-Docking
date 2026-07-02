@@ -78,7 +78,7 @@ jobs:
         run: python3 scripts/06_visualize.py
 
       - name: Upload all results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: docking-results-${{ github.run_number }}
