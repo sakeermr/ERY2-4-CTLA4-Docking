@@ -11,7 +11,7 @@ Strategy:
   3. Rename chain to B
   4. Validate and save
 
-ERY2-4 sequence: CAWGSAILEGELAWLEGGGGGCGSQLADLKRQLAWSKQAC
+ERY2-4 sequence: CAWGQAILEGELAWLEGGGGGAGQLADLKRQLAWWKQAC
 Key features:
   - Disulfide: Cys1 -- Cys40 (cyclic HLH structure)
   - Critical: Trp33 (L33W mutation - primary anchor)
@@ -31,7 +31,7 @@ from pathlib import Path
 
 # ─── Constants ────────────────────────────────────────────────────────────────
 
-SEQUENCE     = "CAWGSAILEGELAWLEGGGGGCGSQLADLKRQLAWSKQAC"
+SEQUENCE     = "CAWGQAILEGELAWLEGGGGGAGQLADLKRQLAWWKQAC"
 PEPTIDE_NAME = "ERY2-4"
 SS_BOND      = (1, 40)   # Cys1 - Cys40 disulfide
 OUTPUT_DIR   = Path("data/output/02_peptide")
