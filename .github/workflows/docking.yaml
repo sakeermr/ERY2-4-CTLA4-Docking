@@ -1,0 +1,97 @@
+name: Full Docking Pipeline (Manual Trigger)
+
+# Manual trigger only — docking is computationally expensive
+on:
+  workflow_dispatch:
+    inputs:
+      peptide_method:
+        description: 'Peptide structure method'
+        required: true
+        default: 'placeholder'
+        type: choice
+        options:
+          - placeholder
+          - pepfold3
+      sampling:
+        description: 'Number of rigid body samples'
+        required: true
+        default: '200'
+      ncores:
+        description: 'Number of CPU cores'
+        required: true
+        default: '2'
+
+jobs:
+  full-docking:
+    name: Full ERY2-4/CTLA-4 Docking
+    runs-on: ubuntu-latest
+    timeout-minutes: 360   # 6 hours max
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install all dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pdb-tools requests numpy matplotlib biopython
+          pip install prodigy-prot
+
+      - name: Install HADDOCK3
+        run: |
+          git clone https://github.com/haddocking/haddock3.git haddock3_src
+          cd haddock3_src
+          pip install -e .
+          cd ..
+
+      - name: Step 1 — Prepare CTLA-4 receptor
+        run: bash scripts/01_prepare_receptor.sh
+
+      - name: Step 2 — Prepare ERY2-4 peptide
+        run: |
+          python3 scripts/02_prepare_peptide.py \
+            --method ${{ github.event.inputs.peptide_method }}
+
+      - name: Step 3 — Generate restraints
+        run: python3 scripts/03_generate_restraints.py
+
+      - name: Update HADDOCK3 config for CI resources
+        run: |
+          sed -i "s/sampling = 1000/sampling = ${{ github.event.inputs.sampling }}/" config/haddock3.cfg
+          sed -i "s/ncores = 4/ncores = ${{ github.event.inputs.ncores }}/" config/haddock3.cfg
+          sed -i "s/select = 200/select = 50/" config/haddock3.cfg
+          sed -i "s/select = 50/select = 20/" config/haddock3.cfg
+          echo "Updated config:"
+          cat config/haddock3.cfg
+
+      - name: Step 4 — Run HADDOCK3 docking
+        run: bash scripts/04_run_docking.sh
+
+      - name: Step 5 — Analyze results
+        run: python3 scripts/05_analyze_results.py
+
+      - name: Step 6 — Generate visualizations
+        run: python3 scripts/06_visualize.py
+
+      - name: Upload all results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: docking-results-${{ github.run_number }}
+          path: |
+            data/output/
+            logs/
+          retention-days: 30
+
+      - name: Print analysis report
+        if: always()
+        run: |
+          if [ -f data/output/05_analysis/analysis_report.txt ]; then
+            cat data/output/05_analysis/analysis_report.txt
+          else
+            echo "Analysis report not generated"
+          fi
